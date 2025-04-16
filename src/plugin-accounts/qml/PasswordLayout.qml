@@ -12,7 +12,9 @@ ColumnLayout {
     property string userId
     property string name: dccData.userName(pwdLayout.userId)
     property bool currentPwdVisible: true
+    property int maxLabelWidth: 0
     Layout.fillWidth: true
+    spacing: 0
 
     signal requestClose();
 
@@ -105,8 +107,10 @@ ColumnLayout {
     RowLayout {
         id: pwdIndicator
         spacing: 4
+        implicitHeight: 4
         Layout.alignment: Qt.AlignRight | Qt.AlignBottom
         Layout.rightMargin: pwdLayout.currentPwdVisible ? 30 : 20
+        // Layout.bottomMargin: 6
         Label {
             id: pwdStrengthHintText
             text: ""
@@ -250,7 +254,7 @@ ColumnLayout {
         }
 
         ColumnLayout {
-            spacing: 0
+            spacing: 10
             anchors.fill: parent
             Repeater {
                 Layout.bottomMargin: 20
@@ -259,7 +263,7 @@ ColumnLayout {
                     Layout.fillWidth: true
                     backgroundVisible: false
                     checkable: false
-                    implicitHeight: 50
+                    implicitHeight: 30
                     leftPadding: pwdLayout.currentPwdVisible ? 0 : 10
                     rightPadding: 10
 
@@ -281,6 +285,10 @@ ColumnLayout {
                         }
                         Component.onCompleted: {
                             pwdContainter.eidtItems[index] = this.edit
+                            if (label.contentWidth > 100)
+                                maxLabelWidth = 100
+                            else
+                                maxLabelWidth = label.contentWidth > maxLabelWidth ? label.contentWidth : maxLabelWidth
                         }
                     }
 
@@ -307,9 +315,11 @@ ColumnLayout {
         property alias edit: rightItem
         signal textChanged(string text)
 
+        spacing: 10
+
         Label {
             id: leftItem
-            Layout.preferredWidth: 120
+            Layout.preferredWidth: pwdLayout.maxLabelWidth
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
@@ -317,6 +327,7 @@ ColumnLayout {
             id: rightItem
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            background.implicitHeight: 30
             echoMode: echoButtonVisible ? TextInput.Password :  TextInput.Normal
             alertDuration: 3000
             onTextChanged: {
