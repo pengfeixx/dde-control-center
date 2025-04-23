@@ -242,10 +242,11 @@ void DccManager::showPage(DccObject *obj, const QString &cmd)
 
 void DccManager::toBack()
 {
-    int row = m_navModel->rowCount() - 2;
-    if (row < 0) {
+    int row = m_navModel->rowCount();
+    if (row < 3) {
         showPage(m_root);
     } else {
+        row = row - 3;
         QString url = m_navModel->data(m_navModel->index(row, 0), NavigationModel::NavUrlRole).toString();
         if (!url.isEmpty()) {
             showPage(url);

@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>US</source>
-        <translation>EE.UU.</translation>
+        <translation>EE. UU</translation>
     </message>
     <message>
         <source>Belize</source>
@@ -535,7 +535,7 @@
     </message>
     <message>
         <source>UK</source>
-        <translation>R.U.</translation>
+        <translation>RU</translation>
     </message>
     <message>
         <source>England</source>

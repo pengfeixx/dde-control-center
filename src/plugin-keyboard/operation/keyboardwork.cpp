@@ -117,12 +117,8 @@ void KeyboardWorker::active()
 {
     if (!m_translatorLanguage) {
         m_translatorLanguage = new QTranslator(this);
-        if (m_translatorLanguage->load(QLocale(), "keyboard_language", TRANSLATE_READ_DIR)) {
-            qApp->installTranslator(m_translatorLanguage);
-        } else {
-            delete m_translatorLanguage;
-            m_translatorLanguage = nullptr;
-        }
+        m_translatorLanguage->load("/usr/share/dde-control-center/translations/keyboard_language_" + QLocale::system().name());
+        qApp->installTranslator(m_translatorLanguage);
     }
 
     m_keyboardDBusProxy->blockSignals(false);

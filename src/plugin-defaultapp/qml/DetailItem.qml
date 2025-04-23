@@ -73,6 +73,7 @@ DccObject {
                     DccCheckIcon {
                         Layout.alignment: Qt.AlignCenter
                         visible: model.isDefault
+                        mouseEnabled: false
                     }
                     D.ActionButton {
                         Layout.alignment: Qt.AlignCenter

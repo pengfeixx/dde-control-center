@@ -40,7 +40,6 @@ public:
     Q_INVOKABLE void enableAllSoundEffect(bool enable);
     Q_INVOKABLE void setPortEnableIndex(int index, bool checked, int portType);
     Q_INVOKABLE void playSoundEffect(int index);
-    Q_INVOKABLE void stopSoundEffectPlayback();
     Q_INVOKABLE void setAudioServerIndex(int index);
     Q_INVOKABLE void setAudioMono(bool enable);
 
@@ -75,7 +74,6 @@ private Q_SLOTS:
 
     void onAniTimerTimeOut();
     void onSoundPlayingChanged();
-    void updatePlayAniIconPath();
 
 private:
     void initConnect();
@@ -101,8 +99,8 @@ private:
     QMediaDevices* m_mediaDevices;
 
     QTimer* m_playAnimationTime;
+    int m_playAniIconIndex;
     int m_upateSoundEffectsIndex;
-    QString m_playAniIconPath;
 };
 
 #endif // SOUNDWORKER_H

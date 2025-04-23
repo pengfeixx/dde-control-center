@@ -43,26 +43,6 @@ DccObject {
             color: "transparent"
             Layout.fillWidth: true
 
-            DropArea {
-                anchors.fill: parent
-                keys: ["text/uri-list"]
-
-                onDropped: (drop) => {
-                    if (drop.hasUrls) {
-                        let filePath = drop.urls[0].toString()
-                        if (filePath.endsWith(".png") || filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") || filePath.endsWith(".bmp")) {
-                            console.log("Image dropped:", filePath)
-                            if (filePath.startsWith("file://")) {
-                                filePath = filePath.substring(7)
-                            }
-                            dccData.work().setBackground(filePath)
-                        } else {
-                            console.log("Dropped file is not a supported image:", filePath)
-                        }
-                    }
-                }
-            }
-
             ItemViewport {
                 id: viewport
                 anchors.fill: image
@@ -75,7 +55,7 @@ DccObject {
 
             Image {
                 id: image
-                source: "file://" + dccData.mode().grubThemePath + "?timestamp=" + Date.now()
+                source: "file://" + dccData.mode().grubThemePath
                 asynchronous: true
                 anchors.fill: parent
                 width: parent.width

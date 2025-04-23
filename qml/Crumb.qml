@@ -3,7 +3,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.3
 import Qt.labs.qmlmodels 1.2
-import QtQuick.Layouts 1.15
 import org.deepin.dtk 1.0 as D
 import org.deepin.dtk.style 1.0 as DS
 import org.deepin.dcc 1.0
@@ -78,11 +77,9 @@ FocusScope {
                     focus: true
                     hoverEnabled: enabled
                     onImplicitWidthChanged: root.updateLayout()
-                    contentItem: RowLayout {
-                        clip: true
+                    contentItem: Row {
                         spacing: 6
                         DccLabel {
-                            Layout.fillWidth: true
                             text: model.display
                             elide: Text.ElideLeft
                             color: parent.palette.windowText

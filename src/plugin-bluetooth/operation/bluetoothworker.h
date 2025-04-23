@@ -35,7 +35,6 @@ public:
     Q_INVOKABLE void disconnectDevice(const QString & deviceId);
     Q_INVOKABLE void ignoreDevice(const QString & deviceId, const QString adapterId);
     Q_INVOKABLE void setAdapterDiscovering(const QString &path, bool enable);
-    Q_INVOKABLE void playErrorSound();
 
 public Q_SLOTS:
 

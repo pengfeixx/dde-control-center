@@ -8,11 +8,13 @@ import QtQuick.Window
 import QtQml.Models
 import QtQuick.Layouts 1.15
 import org.deepin.dtk 1.0 as D
+import org.deepin.dtk.style 1.0 as DS
 import org.deepin.dcc 1.0
 
 D.DialogWindow {
     id: dialog
-    width: 450
+    width: 460
+    height: 432
     minimumWidth: width
     minimumHeight: height
     maximumWidth: minimumWidth
@@ -24,29 +26,62 @@ D.DialogWindow {
     signal accepted()
 
     ColumnLayout {
-        width: dialog.width - 20
+        id: dialogLayout
+        width: dialog.width - 6
+        spacing: 0
+        property int maxLabelWidth: 64
+
+        function getLabelWidth(width) {
+            if (dialogLayout.maxLabelWidth === 100)
+                return
+            if (width > 100 || (pwdLayout.maxLabelWidth !== undefined && pwdLayout.maxLabelWidth > 100)) {
+                dialogLayout.maxLabelWidth = 100
+                return
+            }
+        
+            let max = -Infinity
+            const values = [dialogLayout.maxLabelWidth, width]
+            if (pwdLayout.maxLabelWidth !== undefined) {
+                values.push(pwdLayout.maxLabelWidth)
+            }
+            values.forEach(n => {
+                if (n <= 100 && n > max) {
+                    max = n
+                }
+            });
+        
+            dialogLayout.maxLabelWidth = max
+            pwdLayout.maxLabelWidth = dialogLayout.maxLabelWidth
+        }
+
         Label {
             text: dialog.title
             font.bold: true
             Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-            Layout.bottomMargin: 10
+            Layout.bottomMargin: 20
         }
 
         RowLayout {
             implicitHeight: 40
             Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
             Layout.fillWidth: true
-            Layout.bottomMargin: 20
+            Layout.bottomMargin: 10
+            spacing: 10
 
             Label {
+                id: typeLabel
                 text: qsTr("Account type")
-                Layout.preferredWidth: 120
+                Layout.preferredWidth: dialogLayout.maxLabelWidth
                 Layout.alignment: Qt.AlignVCenter
                 Layout.leftMargin: 10
+                Component.onCompleted: {
+                    dialogLayout.getLabelWidth(contentWidth)
+                }
             }
 
             ComboBox {
                 id: userType
+                implicitHeight: 30
                 Layout.alignment: Qt.AlignVCenter
                 Layout.rightMargin: 10
                 Layout.fillWidth: true
@@ -71,8 +106,9 @@ D.DialogWindow {
             property var eidtItems: []
             radius: 8
             Layout.fillWidth: true
+            Layout.bottomMargin: 20
             Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-            implicitHeight: 100
+            implicitHeight: 68
             color: "transparent"
 
             function checkNames() {
@@ -101,7 +137,7 @@ D.DialogWindow {
             }
 
             ColumnLayout {
-                spacing: 0
+                spacing: 8
                 anchors.fill: parent
                 Repeater {
                     model: namesModel
@@ -109,21 +145,25 @@ D.DialogWindow {
                         Layout.fillWidth: true
                         backgroundVisible: false
                         checkable: false
-                        implicitHeight: 50
+                        implicitHeight: 30
                         leftPadding: 10
                         rightPadding: 10
 
                         contentItem: RowLayout {
+                            spacing: 0
                             Label {
+                                id: name
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                                 text: model.name
-                                Layout.preferredWidth: 120
+                                Layout.preferredWidth: dialogLayout.maxLabelWidth
+                                Layout.rightMargin: 10
                             }
                             D.LineEdit {
                                 id: edit
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 placeholderText: model.placeholder
+                                background.implicitHeight: 30
                                 alertDuration: 3000
                                 // can not past
                                 // validator: RegularExpressionValidator {
@@ -156,6 +196,9 @@ D.DialogWindow {
                         background: DccItemBackground {
                             separatorVisible: true
                         }
+                        Component.onCompleted: {
+                            dialogLayout.getLabelWidth(name.contentWidth)
+                        }
                     }
                 }
             }
@@ -175,14 +218,15 @@ D.DialogWindow {
         }
 
         RowLayout {
-            spacing: 10
+            spacing: 6
             Layout.alignment: Qt.AlignBottom | Qt.AlignHCenter
-            Layout.bottomMargin: 10
-            Layout.leftMargin: 10
+            Layout.bottomMargin: 6
+            Layout.leftMargin: 6
             Layout.rightMargin: 10
 
             Button {
                 Layout.fillWidth: true
+                implicitHeight: 30
                 text: qsTr("Cancel")
                 onClicked: {
                     close()
@@ -190,6 +234,7 @@ D.DialogWindow {
             }
             D.RecommandButton {
                 Layout.fillWidth: true
+                implicitHeight: 30
                 text: qsTr("Create account")
                 onClicked: {
                     if (!namesContainter.checkNames())

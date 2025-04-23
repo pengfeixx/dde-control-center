@@ -266,8 +266,6 @@ DccObject {
             weight: 20
             pageType: DccObject.Editor
             page: RowLayout {
-                property string originalFullName: "" // Store original name here
-
                 EditActionLabel {
                     id: fullNameEdit
                     implicitWidth: 200
@@ -275,12 +273,6 @@ DccObject {
                     placeholderText: qsTr("Set fullname")
                     horizontalAlignment: TextInput.AlignRight
                     editBtn.visible: readOnly
-                    onReadOnlyChanged: {
-                        // Store the original text when editing starts
-                        if (!readOnly) {
-                            originalFullName = text
-                        }
-                    }
                     onTextEdited: {
                         if (showAlert)
                             showAlert = false
@@ -297,12 +289,6 @@ DccObject {
                     }
 
                     onFinished: function () {
-                        // If text hasn't changed, do nothing
-                        if (text === originalFullName) {
-                            return;
-                        }
-
-                        // --- Original validation and saving logic ---
                         let alertMsg = dccData.checkFullname(text)
                         if (alertMsg.length > 0) {
                             showAlert = false
@@ -630,13 +616,11 @@ DccObject {
                         }
                         implicitHeight: 40
                         implicitWidth: 200
-                        Layout.fillWidth: !readOnly
                         placeholderText: qsTr("Group name")
                         horizontalAlignment: TextInput.AlignLeft | Qt.AlignVCenter
                         editBtn.visible: readOnly && editAble
                                          && !groupSettings.isEditing
                         readOnly: model.display.length > 0
-                        background: null
 
                         onFinished: function () {
                             if (text.length < 1) {
@@ -674,7 +658,7 @@ DccObject {
                         focusPolicy: Qt.NoFocus
                         icon.width: 18
                         icon.height: 18
-                        visible: groupSettings.isEditing ? editLabel.editAble : editLabel.readOnly
+                        visible: groupSettings.isEditing ? editLabel.editAble : true
                         icon.name: {
                             if (groupSettings.isEditing) {
                                 return "list_delete"

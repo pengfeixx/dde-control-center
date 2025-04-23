@@ -18,29 +18,9 @@ DccObject{
         weight: 10
         backgroundType: DccObject.Normal
         page: RowLayout {
-            id: root
             Layout.fillWidth: true
             spacing: 0
-
-            property bool isSwitching: false
-
-            Component.onCompleted: {
-                deviceSwitch.checked = model.powered
-            }
-
-            Connections {
-                target: model
-                function onPoweredChanged(poweredState, discoveringState) {
-                    if (deviceSwitch.checked === model.powered) {
-                        isSwitching = false;
-                        deviceSwitch.enabled = true;
-                    } else {
-                        isSwitching = true;
-                        deviceSwitch.enabled = false;
-                    }
-                }
-            }
-
+            id: root
             DciIcon {
                 id: deviceIcon
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
@@ -72,35 +52,38 @@ DccObject{
                     id: nameDetaillay
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    RowLayout {
+                        spacing: 0
+                        Layout.fillWidth: true
+                        Label {
+                            id: nameDetail
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            width: Math.min(implicitWidth, nameDetaillay.width - editBtn.width - 10)
 
-                    Label {
-                        id: nameDetail
-                        anchors.left: parent.left
-                        anchors.top: parent.top
-                        width: Math.min(implicitWidth, parent.width - editBtn.implicitWidth - 10)
-                        text: model.nameDetail
-                        horizontalAlignment: Qt.AlignLeft
-                        verticalAlignment: Text.AlignTop
-                        font.pointSize: 8
-                        elide: Text.ElideRight
-                    }
+                            text: model.nameDetail
+                            horizontalAlignment: Qt.AlignLeft
+                            verticalAlignment: Qt.AlignTop
+                            font.pointSize: 8
+                            elide: Text.ElideRight
+                        }
 
-                    ToolButton {
-                        id: editBtn
-                        anchors.left: nameDetail.right
-                        anchors.top: nameDetail.top
-                        font.pointSize: 8
-                        text: qsTr("Edit")
+                        ToolButton {
+                            id: editBtn
+                            font.pointSize: 8
+                            text: qsTr("Edit")
 
-                        hoverEnabled: false
-                        implicitHeight: 20
-                        textColor: DS.Style.highlightedButton.text
-
-                        onClicked: {
-                            nameEdit.visible = true
-                            devName.visible =false
-                            nameEdit.forceActiveFocus(true)
-                            nameEdit.selectAll()
+                            hoverEnabled: false
+                            implicitHeight: 20
+                            spacing: 0
+                            textColor: DS.Style.highlightedButton.text
+                            Layout.alignment: Qt.AlignTop
+                            
+                            onClicked: {
+                                nameEdit.visible = true
+                                devName.visible =false
+                                nameEdit.forceActiveFocus(true)
+                                nameEdit.selectAll()
+                            }
                         }
                     }
                 }
@@ -124,7 +107,6 @@ DccObject{
                         text = text.substr(0, 64);  // 截断到31个字符
                         nameEdit.alertText = qsTr("Length greater than or equal to 64")
                         nameEdit.showAlert = true
-                        dccData.work().playErrorSound()
                         alertTimer.start()
                     } else {
                         nameEdit.showAlert = false
@@ -162,24 +144,42 @@ DccObject{
             BusyIndicator {
                 id: initAnimation
                 running: true
-                visible: isSwitching
+                visible: false
                 implicitWidth: 32
                 implicitHeight: 32
             }
 
+            Timer {
+                id: timer
+                interval: 6000  // 1000毫秒，即1秒
+                repeat: false    // 设置为重复
+                running: false  // 初始状态不运行
+                onTriggered: {
+
+                    initAnimation.visible = false
+                    deviceSwitch.enabled = true
+                }
+
+            }
+
             Switch {
                 id: deviceSwitch
+                checked: model.powered
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 Layout.rightMargin: 10
                 onCheckedChanged: {
-                    enabled = false;
-                    isSwitching = true;
-                    dccData.work().setAdapterPowered(model.id ,checked);
+                    if (checked === model.powered) {
+                        return
+                    }
+
+                    dccData.work().setAdapterPowered(model.id ,checked)
+                    deviceSwitch.enabled = false
+                    timer.running = true
+                    initAnimation.visible = true
+                    dccData.work().setAdapterDiscovering(model.id, checked)
+
                     if (checked) {
-                        dccData.work().setAdapterDiscovering(model.id, true);
-                        dccData.work().setAdapterDiscoverable(model.id);
-                    } else {
-                        dccData.work().setAdapterDiscovering(model.id, false);
+                        dccData.work().setAdapterDiscoverable(model.id)
                     }
                 }
             }

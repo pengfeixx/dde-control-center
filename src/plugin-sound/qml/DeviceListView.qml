@@ -42,12 +42,10 @@ Rectangle {
                 content: RowLayout {
                     Layout.alignment: Qt.AlignVCenter
                     spacing: 0
-                    AnimatedImage {
-                        source: model.aniIconPath
+                    DciIcon {
                         Layout.alignment: Qt.AlignLeft
                         visible: showPlayBtn && model.aniIconPath.length !== 0
-                        sourceSize.width: 24
-                        sourceSize.height: 24
+                        name: model.aniIconPath
                     }
 
                     RowLayout {
