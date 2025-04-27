@@ -43,17 +43,69 @@ Control {
         }
 
         MouseArea {
+            id: dropMouseArea // Add id to reference this MouseArea
             anchors.fill: parent
+            // Keep existing onClicked handler
             onClicked: {
                 requireFileDialog()
             }
+            // Set default cursor shape
+            cursorShape: Qt.ArrowCursor
         }
         DropArea {
             anchors.fill: parent
             enabled: true
+
+            // Set cursor based on dragged file type via the MouseArea
+            onEntered: function(drag) {
+                if (drag.hasUrls && drag.urls.length > 0) {
+                    var fileUrl = drag.urls[0];
+                    var filePath = fileUrl.toLocalFile ? fileUrl.toLocalFile() : fileUrl.toString();
+
+                    // Check if the file extension matches the allowed types (case-insensitive)
+                    if (filePath.toLowerCase().endsWith(".png") ||
+                        filePath.toLowerCase().endsWith(".bmp") ||
+                        filePath.toLowerCase().endsWith(".jpg") ||
+                        filePath.toLowerCase().endsWith(".jpeg"))
+                    {
+                        // Valid file type, suggest copy action
+                        dropMouseArea.cursorShape = Qt.DragCopyCursor
+                    } else {
+                        // Invalid file type, show forbidden cursor
+                        console.warn("----------------------")
+                        // dropMouseArea.cursorShape = Qt.ForbiddenCursor
+                        dropMouseArea.cursorShape = Qt.ArrowCursor
+                    }
+                } else {
+                    // Not a file drag, reset cursor
+                    dropMouseArea.cursorShape = Qt.ArrowCursor
+                }
+            }
+
+            // Reset cursor on exit via the MouseArea
+            onExited: {
+                dropMouseArea.cursorShape = Qt.ArrowCursor // Reset to default arrow
+            }
+
             onDropped: function (drop) {
+                // The check in onDropped remains as a final validation before processing
                 if (drop.hasUrls) {
-                    iconDropped(drop.urls[0])
+                    var fileUrl = drop.urls[0];
+                    // In QML, local file URLs might start with "file://", need to get the path part
+                    var filePath = fileUrl.toLocalFile ? fileUrl.toLocalFile() : fileUrl.toString();
+
+                    // Check if the file extension matches the allowed types (case-insensitive)
+                    if (filePath.toLowerCase().endsWith(".png") ||
+                        filePath.toLowerCase().endsWith(".bmp") ||
+                        filePath.toLowerCase().endsWith(".jpg") ||
+                        filePath.toLowerCase().endsWith(".jpeg"))
+                    {
+                        iconDropped(fileUrl) // Pass the original URL object
+                    } else {
+                        // Optional: Provide feedback to the user about invalid file type
+                        console.log("Invalid file type dropped:", filePath);
+                        // You might want to show a notification or message here using a component
+                    }
                 }
             }
         }
