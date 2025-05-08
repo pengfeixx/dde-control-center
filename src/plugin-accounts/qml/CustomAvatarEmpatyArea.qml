@@ -32,7 +32,7 @@ Control {
                     Qt.rgba(0, 0, 0, 0.08)
                 } else if (mouseArea.pressed) {
                     Qt.rgba(0, 0, 0, 0.10)
-                } else if (hovered) {
+                } else if (mouseArea.containsMouse) {
                     Qt.rgba(0, 0, 0, 0.05)
                 } else {
                     palette.window
