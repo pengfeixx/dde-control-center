@@ -32,7 +32,7 @@ Control {
                     Qt.rgba(0, 0, 0, 0.08)
                 } else if (mouseArea.pressed) {
                     Qt.rgba(0, 0, 0, 0.10)
-                } else if (hovered) {
+                } else if (mouseArea.containsMouse) {
                     Qt.rgba(0, 0, 0, 0.05)
                 } else {
                     palette.window
@@ -83,6 +83,7 @@ Control {
         wrapMode: Text.WordWrap
         anchors.top: addIcon.bottom
         anchors.topMargin: 20
+        font: D.DTK.fontManager.t8
         horizontalAlignment: Text.AlignHCenter
         anchors.horizontalCenter: parent.horizontalCenter
         text: qsTr("You haven't uploaded an avatar yet. Click or drag and drop to upload an image.")

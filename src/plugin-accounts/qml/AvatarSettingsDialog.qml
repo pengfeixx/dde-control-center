@@ -136,6 +136,7 @@ D.DialogWindow {
                 delegate: D.ItemDelegate {
                     id: itemDelegate
                     text: model.name
+                    font: D.DTK.fontManager.t6
                     hoverEnabled: true
                     icon {
                         name: model.icon
