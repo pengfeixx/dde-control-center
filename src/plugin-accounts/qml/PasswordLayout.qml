@@ -312,30 +312,103 @@ ColumnLayout {
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
-        D.PasswordEdit {
-            id: rightItem
-            font: D.DTK.fontManager.t7
+        Item {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-            echoMode: echoButtonVisible ? TextInput.Password :  TextInput.Normal
-            alertDuration: 3000
-            onTextChanged: {
-                if (showAlert)
-                    showAlert = false
-
-                if (!echoButtonVisible && text.length > 14) {
-                    rightItem.text = text.substring(0, 14)
-                    playErrorSound()
-                    return
+            implicitHeight: rightItem.implicitHeight
+            
+            D.PasswordEdit {
+                id: rightItem
+                anchors.fill: parent
+                font: D.DTK.fontManager.t7
+                echoMode: echoButtonVisible ? TextInput.Password :  TextInput.Normal
+                alertDuration: 3000
+                
+                property bool isPlainTextVisible: echoMode === TextInput.Normal && echoButtonVisible
+                
+                Keys.onPressed: function(event) {
+                    if (event.modifiers & Qt.ControlModifier) {
+                        if (event.key === Qt.Key_C || event.key === Qt.Key_X || event.key === Qt.Key_V) {
+                            event.accepted = true
+                            return
+                        }
+                    }
                 }
                 
-                pwdItem.textChanged(text)
-            }
+                onTextChanged: {
+                    if (showAlert)
+                        showAlert = false
 
-            function showAlertText(text) {
-                rightItem.showAlert = false
-                rightItem.showAlert = true
-                rightItem.alertText = text
+                    if (!echoButtonVisible && text.length > 14) {
+                        rightItem.text = text.substring(0, 14)
+                        playErrorSound()
+                        return
+                    }
+                    
+                    pwdItem.textChanged(text)
+                }
+
+                function showAlertText(text) {
+                    rightItem.showAlert = false
+                    rightItem.showAlert = true
+                    rightItem.alertText = text
+                }
+            }
+            
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.RightButton
+                propagateComposedEvents: true
+                
+                onClicked: function(mouse) {
+                    if (mouse.button === Qt.RightButton && rightItem.isPlainTextVisible) {
+                        passwordContextMenu.popup()
+                    }
+                }
+                
+                Menu {
+                    id: passwordContextMenu
+                    
+                    MenuItem {
+                        text: qsTr("Undo")
+                        enabled: rightItem.canUndo
+                        onTriggered: rightItem.undo()
+                    }
+                    
+                    MenuItem {
+                        text: qsTr("Redo")
+                        enabled: rightItem.canRedo
+                        onTriggered: rightItem.redo()
+                    }
+                    
+                    MenuSeparator {}
+                    
+                    MenuItem {
+                        text: qsTr("Cut")
+                        enabled: false
+                        onTriggered: rightItem.cut()
+                    }
+                    
+                    MenuItem {
+                        text: qsTr("Copy")
+                        enabled: false
+                        onTriggered: rightItem.copy()
+                    }
+                    
+                    MenuItem {
+                        text: qsTr("Paste")
+                        enabled: false
+                        onTriggered: rightItem.paste()
+                    }
+                    
+                    MenuSeparator {}
+                    
+                    MenuItem {
+                        text: qsTr("Select All")
+                        enabled: rightItem.text.length > 0
+                        onTriggered: rightItem.selectAll()
+                    }
+                }
             }
         }
     }
