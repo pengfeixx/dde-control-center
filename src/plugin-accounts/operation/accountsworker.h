@@ -92,6 +92,7 @@ public Q_SLOTS:
     bool hasOpenSecurity();
     SecurityLever getSecUserLeverbyname(QString userName);
     void checkPwdLimitLevel(int level);
+    int getSystemPasswordSecurityLevel();
     void showDefender();
     void playSystemSound(int soundType);
 

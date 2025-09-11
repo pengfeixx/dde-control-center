@@ -879,6 +879,11 @@ QStringList AccountsController::userTypes(bool createUser /* = false*/) const
     return types;
 }
 
+int AccountsController::getSystemPasswordSecurityLevel()
+{
+    return m_worker->getSystemPasswordSecurityLevel();
+}
+
 } // namespace dccV25
 
 #include "accountscontroller.moc"

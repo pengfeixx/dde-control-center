@@ -331,6 +331,26 @@ void AccountsWorker::checkPwdLimitLevel(int level)
     }
 }
 
+int AccountsWorker::getSystemPasswordSecurityLevel()
+{
+    QDBusInterface interface(QStringLiteral("com.deepin.defender.daemonservice"),
+                             QStringLiteral("/com/deepin/defender/daemonservice"),
+                             QStringLiteral("com.deepin.defender.daemonservice"));
+    
+    if (!interface.isValid()) {
+        qWarning() << "Security service DBus interface is not valid:" << interface.lastError().message();
+        return 1;
+    }
+    
+    QDBusReply<int> pwdLimitLevel = interface.call("GetPwdLimitLevel");
+    if (pwdLimitLevel.error().type() == QDBusError::NoError) {
+        return pwdLimitLevel;
+    } else {
+        qWarning() << "Failed to get password security level:" << pwdLimitLevel.error().message();
+        return 1;
+    }
+}
+
 void AccountsWorker::showDefender()
 {
     qDebug() << "showDefender call.....";

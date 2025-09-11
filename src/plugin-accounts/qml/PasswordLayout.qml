@@ -406,7 +406,7 @@ ColumnLayout {
 
             onEditingFinished: {
                 if (echoButtonVisible && pwdContainter.eidtItems[2] != rightItem) {
-                    if (text === pwdLayout.currentName && text.length > 0) {
+                    if (dccData.getSystemPasswordSecurityLevel() === 3 && text === pwdLayout.currentName && text.length > 0) {
                         showAlertText(qsTr("Different from the username"))
                     }
                 }

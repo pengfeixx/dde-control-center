@@ -92,6 +92,7 @@ public slots:
     QVariantMap checkPasswordResult(int code, const QString &msg, const QString &name, const QString &pwd);
     void showDefender();
     void playSystemSound(int soundType);
+    int getSystemPasswordSecurityLevel();
 
     void updateSingleUserGroups(const QString &id);
 
