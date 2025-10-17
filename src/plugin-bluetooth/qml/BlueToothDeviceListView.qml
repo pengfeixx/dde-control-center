@@ -12,7 +12,7 @@ import Qt.labs.platform
 
 Rectangle {
     id: root
-    property alias deviceModel: repeater.model
+    property var deviceModel
     property bool backgroundVisible: true
     property bool showMoreBtn: true
     property bool showPowerStatus: true
@@ -22,6 +22,31 @@ Rectangle {
     color: "transparent"
     implicitHeight: layoutView.height
     Layout.fillWidth: true
+    
+    property bool modelLoaded: false
+    
+    // 统一的加载函数，只在第一次可见时加载
+    function loadModelIfNeeded() {
+        if (visible && deviceModel && !modelLoaded) {
+            repeater.model = deviceModel
+            modelLoaded = true
+        }
+    }
+    
+    // 监听 deviceModel 变化 - 只在首次有效时加载，避免多次重载
+    onDeviceModelChanged: {
+        // 只在还没加载过且有有效 model 时才尝试加载
+        if (deviceModel && !modelLoaded) {
+            loadModelIfNeeded()
+        }
+    }
+    
+    onVisibleChanged: {
+        if (visible) {
+            loadModelIfNeeded()
+        }
+    }
+    
     ColumnLayout {
         id: layoutView
         width: parent.width
@@ -29,26 +54,34 @@ Rectangle {
         spacing: 0
         Repeater {
             id: repeater
-            delegate: D.ItemDelegate {
-
-                property bool showSendFile: model.canSendFile && model.connectStatus === 2
-                // 用于保存移除的菜单项
-                property Item removedItem: null
-                id: itemCtl
+            model: null
+            delegate: Loader {
+                id: delegateLoader
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                topPadding: 0
-                bottomPadding: 0
-
-                cascadeSelected: true
+                asynchronous: false
+                active: model.visiable
                 visible: model.visiable
-                backgroundVisible: root.backgroundVisible
-                icon.name: model.iconName
-                contentFlow: true
-                hoverEnabled: true
+                
+                Layout.preferredHeight: model.visiable ? (item ? item.implicitHeight : 0) : 0
+                
+                sourceComponent: D.ItemDelegate {
 
-                corners: getCornersForBackground(index, repeater.count)
+                    property bool showSendFile: model.canSendFile && model.connectStatus === 2
+                    property Item removedItem: null
+                    id: itemCtl
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    topPadding: 0
+                    bottomPadding: 0
+
+                    cascadeSelected: true
+                    backgroundVisible: root.backgroundVisible
+                    icon.name: model.iconName
+                    contentFlow: true
+                    hoverEnabled: true
+
+                    corners: getCornersForBackground(index, repeater.count)
 
                 background: DccItemBackground {
                     separatorVisible: true
@@ -334,6 +367,7 @@ Rectangle {
                         }
 
                     }
+                }
                 }
             }
         }
