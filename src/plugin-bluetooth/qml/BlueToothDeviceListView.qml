@@ -22,6 +22,50 @@ Rectangle {
     color: "transparent"
     implicitHeight: layoutView.height
     Layout.fillWidth: true
+    
+    property bool modelLoaded: false
+    property int loadedCount: 0
+    
+    // 统一的加载函数，只在第一次可见时加载
+    function loadModelIfNeeded() {
+        if (visible && deviceModel && !modelLoaded) {
+            repeater.model = deviceModel
+            modelLoaded = true
+            loadedCount = 0
+            loadTimer.running = true
+        }
+    }
+    
+    // 监听 deviceModel 变化 - 只在首次有效时加载，避免多次重载
+    onDeviceModelChanged: {
+        // 只在还没加载过且有有效 model 时才尝试加载
+        if (deviceModel && !modelLoaded) {
+            loadModelIfNeeded()
+        }
+    }
+    
+    onVisibleChanged: {
+        if (visible) {
+            loadModelIfNeeded()
+            if (modelLoaded && loadedCount < repeater.count) {
+                loadTimer.running = true
+            }
+        }
+    }
+    Timer {
+        id: loadTimer
+        interval: 30
+        repeat: true
+        running: false
+        onTriggered: {
+            if (loadedCount < repeater.count) {
+                loadedCount++
+            } else {
+                running = false
+            }
+        }
+    }
+    
     ColumnLayout {
         id: layoutView
         width: parent.width
@@ -29,7 +73,17 @@ Rectangle {
         spacing: 0
         Repeater {
             id: repeater
-            delegate: D.ItemDelegate {
+            model: null
+            delegate: Loader {
+                id: delegateLoader
+                Layout.fillWidth: true
+                asynchronous: true
+                active: model.visiable && index < root.loadedCount
+                visible: model.visiable && index < root.loadedCount
+                
+                Layout.preferredHeight: model.visiable ? (item ? item.implicitHeight : 0) : 0
+                
+                sourceComponent: D.ItemDelegate {
 
                 property bool showSendFile: model.canSendFile && model.connectStatus === 2
                 // 用于保存移除的菜单项
@@ -335,6 +389,7 @@ Rectangle {
 
                     }
                 }
+            }
             }
         }
     }
