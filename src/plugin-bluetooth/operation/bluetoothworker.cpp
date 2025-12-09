@@ -33,6 +33,20 @@ BluetoothWorker::BluetoothWorker(BluetoothModel *model, QObject *parent)
     connect(m_bluetoothDBusProxy, &BluetoothDBusProxy::DeviceRemoved, this, &BluetoothWorker::removeDevice);
     connect(m_bluetoothDBusProxy, &BluetoothDBusProxy::DevicePropertiesChanged, this, &BluetoothWorker::onDevicePropertiesChanged);
 
+    connect(m_bluetoothDBusProxy, &BluetoothDBusProxy::Cancelled, this, [this](const QDBusObjectPath &device) {
+        qCDebug(DdcBluetoothWorkder) << "pairing cancelled: " << device.path();
+        for (const BluetoothAdapter *adapter : m_model->adapters()) {
+            BluetoothDevice *dev = const_cast<BluetoothDevice *>(adapter->deviceById(device.path()));
+            if (dev) {
+                if (!dev->paired()) {
+                    dev->setConnecting(false);
+                    dev->setState(BluetoothDevice::StateUnavailable, false);
+                }
+                break;
+            }
+        }
+    });
+
     connect(m_bluetoothDBusProxy, &BluetoothDBusProxy::TransportableChanged, m_model, &BluetoothModel::setTransportable);
     connect(m_bluetoothDBusProxy, &BluetoothDBusProxy::CanSendFileChanged, m_model, &BluetoothModel::setCanSendFile);
     connect(m_bluetoothDBusProxy, &BluetoothDBusProxy::DisplaySwitchChanged, m_model, &BluetoothModel::setDisplaySwitch);
