@@ -12,6 +12,16 @@ import org.deepin.dcc 1.0
 import org.deepin.dtk.style 1.0 as DS
 DccObject {
     id: root11
+    
+    QtObject {
+        id: layoutWidthNotifier
+        property real currentWidth: 0
+        signal widthChanged(real width)
+        onWidthChanged: function(width) {
+            currentWidth = width
+        }
+    }
+
     DccObject {
         name: "systemLogo"
         weight: 10
@@ -68,6 +78,9 @@ DccObject {
         pageType: DccObject.Item
         page: ColumnLayout {
             DccGroupView {
+            }
+            onWidthChanged: {
+                layoutWidthNotifier.widthChanged(width)
             }
         }
         DccObject {
@@ -362,8 +375,13 @@ DccObject {
             pageType: DccObject.Editor
             displayName: qsTr("Processor") + ":"
             page: Label {
+                id: processorLabel
                 horizontalAlignment: Text.AlignLeft
                 text: dccData.systemInfoMode().processor
+                width: layoutWidthNotifier.currentWidth || implicitWidth
+                onWidthChanged: {
+                    console.warn("---------------", width)
+                }
             }
         }
 
