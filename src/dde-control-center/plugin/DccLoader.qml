@@ -7,10 +7,18 @@ Loader {
     property Item dccObjItem: null
 
     function updateDccObjItem() {
-        if (dccObj) {
+        if (dccObj && dccObjItem) {
             dccObj.parentItem = dccObjItem
         }
     }
+
+    Component.onDestruction: {
+        if (dccObj && dccObj.parentItem === dccObjItem) {
+            dccObj.parentItem = null
+        }
+        sourceComponent = null
+    }
+
     enabled: dccObj && dccObj.enabledToApp
     // asynchronous: true
     sourceComponent: dccObj ? dccObj.page : null
