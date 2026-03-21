@@ -44,7 +44,8 @@ DccObject::Private::~Private()
         m_page->deleteLater();
         m_page = nullptr;
     }
-    if (m_parent) {
+    // 增加安全检查：确保 m_parent 和其 p_ptr 有效
+    if (m_parent && m_parent->p_ptr) {
         m_parent->p_ptr->removeChild(q_ptr);
     }
     while (!m_children.isEmpty()) {
@@ -176,7 +177,7 @@ const QVector<DccObject *> &DccObject::Private::getChildren() const
 
 int DccObject::Private::getIndex() const
 {
-    return m_parent ? m_parent->p_ptr->getChildren().indexOf(q_ptr) : -1;
+    return (m_parent && m_parent->p_ptr) ? m_parent->p_ptr->getChildren().indexOf(q_ptr) : -1;
 }
 
 DccObject *DccObject::Private::getChild(int childPos) const
@@ -267,7 +268,8 @@ void DccObject::setWeight(quint32 weight)
 {
     if (p_ptr->m_weight != weight) {
         p_ptr->m_weight = weight;
-        if (p_ptr->m_parent) {
+        // 增加安全检查：确保 m_parent 和其 p_ptr 有效，避免访问野指针
+        if (p_ptr->m_parent && p_ptr->m_parent->p_ptr) {
             p_ptr->m_parent->p_ptr->updatePos(this);
         }
         Q_EMIT weightChanged(p_ptr->m_weight);
